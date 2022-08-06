@@ -44,7 +44,7 @@ func TestEmptyTable(t *testing.T) {
 func TestGetNonExistentProduct(t *testing.T) {
 	clearTable()
 
-	req, _ := http.NewRequest("GET", "/products/11", nil)
+	req, _ := http.NewRequest("GET", "/product/11", nil)
 	response := executeRequest(req)
 
 	checkResponseCode(t, http.StatusNotFound, response.Code)
@@ -93,13 +93,13 @@ func TestUpdateProduct(t *testing.T) {
 	clearTable()
 	addProducts(1)
 
-	reqGet, _ := http.NewRequest("GET", "/products/1", nil)
+	reqGet, _ := http.NewRequest("GET", "/product/1", nil)
 	responseGet := executeRequest(reqGet)
 
 	var originalProduct map[string]interface{}
 	json.Unmarshal(responseGet.Body.Bytes(), &originalProduct)
 
-	var jsonStr = []byte(`{"name": "test product - updated name", "price": 11.22}`)
+	var jsonStr = []byte(`{"name": "update name", "price": 11.22}`)
 	req, _ := http.NewRequest("PUT", "/product/1", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
@@ -109,13 +109,13 @@ func TestUpdateProduct(t *testing.T) {
 	var m map[string]interface{}
 	json.Unmarshal(response.Body.Bytes(), &m)
 
-	if m["name"] != originalProduct["name"] {
-		t.Errorf("Expected 'name' to change from '%v' to 'test product - updated name'. Got %v", originalProduct["name"], m["name"])
+	if m["name"] == originalProduct["name"] {
+		t.Errorf("Expected 'name' to change from '%v' to 'update name'. Got %v", originalProduct["name"], m["name"])
 	}
-	if m["price"] != originalProduct["price"] {
+	if m["price"] == originalProduct["price"] {
 		t.Errorf("Expected 'price' to change from '%v' to 11.22. Got %v", originalProduct["price"], m["price"])
 	}
-	if m["id"] == originalProduct["id"] {
+	if m["id"] != originalProduct["id"] {
 		t.Errorf("Expected 'id' to remain the same (%v). Got %v", originalProduct["id"], m["id"])
 	}
 }
